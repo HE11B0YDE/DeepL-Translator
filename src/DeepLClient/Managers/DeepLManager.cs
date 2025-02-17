@@ -42,7 +42,17 @@ namespace DeepLClient.Managers
                 // load source languages
                 Variables.SourceLanguages.Clear();
                 var sourceLanguages = await Variables.Translator.GetSourceLanguagesAsync();
-                foreach (var language in sourceLanguages) Variables.SourceLanguages.Add(language.Name, language.Code);
+                foreach (var language in sourceLanguages)
+                {
+                    if (!Variables.SourceLanguages.ContainsKey(language.Name))
+                    {
+                        Variables.SourceLanguages.Add(language.Name, language.Code);
+                    }
+                    else
+                    {
+                        Log.Warning("Duplicate source language encountered: {LanguageName}", language.Name);
+                    }
+                }
 
                 // add auto detect option
                 Variables.SourceLanguages.Add("AUTO DETECT", "AUTO DETECT");
@@ -52,8 +62,16 @@ namespace DeepLClient.Managers
                 var targetLanguages = await Variables.Translator.GetTargetLanguagesAsync();
                 foreach (var language in targetLanguages)
                 {
-                    Variables.TargetLanguages.Add(language.Name, language.Code);
-                    if (language.SupportsFormality) Variables.FormalitySupportedLanguages.Add(language.Code);
+                    if (!Variables.TargetLanguages.ContainsKey(language.Name))
+                    {
+                        Variables.TargetLanguages.Add(language.Name, language.Code);
+                        if (language.SupportsFormality)
+                            Variables.FormalitySupportedLanguages.Add(language.Code);
+                    }
+                    else
+                    {
+                        Log.Warning("Duplicate target language encountered: {LanguageName}", language.Name);
+                    }
                 }
 
                 // done
